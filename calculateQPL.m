@@ -8,13 +8,7 @@
 %       2020. doi: 10.1007/978-981-32-9796-8.
 %
 %
-addpath('data');
-data = readtable('1 XAUUSD.csv');
-
-% User preference parameters
-% Interval used to estimate Q(r)
-interval = 2048;
-
+function mQPL = calculateQPL(data, interval)
 % =======================================================
 % Step 1: Calculate all the K values (energy levels)
 %           from k0 to k20 using the formula 5.17 in
@@ -133,5 +127,7 @@ for n=-20:1:20
     else
         mQPL(n+20+1, 2) = openPrice / NQPR(abs(n));
     end
+end
+
 end
 
