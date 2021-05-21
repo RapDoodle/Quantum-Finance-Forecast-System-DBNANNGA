@@ -9,7 +9,7 @@
 %
 %
 addpath('data');
-data = readtable('1 XAUUSD.csv');
+data = readtable('XAUUSD.csv');
 
 % User preference parameters
 % Interval used to estimate Q(r)
@@ -21,10 +21,8 @@ interval = 2048;
 %           p98 of [1].
 K = zeros(21, 1);
 for n=0:20
-    %K(n+1) = ((1.1924 + (33.2383*n) + (56.2169*n*n)) / ...
-    %    (1 + 43.6196*n))^(1/3);
     K(n+1) = ((1.1924 + (33.2383*n) + (56.2169*n*n)) / ...
-        (1 + 43.6106*n))^(1/3);
+        (1 + 43.6196*n))^(1/3);
 end
 
 
@@ -33,7 +31,7 @@ end
 %           deviation (sigma) of period returns
 returns = data{:, 'Return'};
 mu = mean(returns);
-sigma = std(returns);  % N - 1 is not needed
+sigma = std(returns, 1);  % N - 1 is not needed
 % The width of each slice of returns
 dr = (3*sigma) / 50;
 
