@@ -1,3 +1,6 @@
+# Visual studio code related
+.vs/
+
 # Windows default autosave extension
 *.asv
 
