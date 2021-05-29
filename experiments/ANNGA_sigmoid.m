@@ -101,79 +101,57 @@ testX = scalerX.transform(testX);
 testy = scalerY.transform(testy);
 disp("Data normalized");
 
-%% Build the DBN
-model = DBN();
-model.add(BernoulliRBM(45, 32));
-model.add(BernoulliRBM(32, 24));
-model.add(BernoulliRBM(24, 16));
-model.add(BernoulliRBM(16, 8));
+%% Model
+model = SequentialModel();
+
+model.add(InputLayer(45));
+
+options.activation = "sigmoid";
+options.usebias = true;
+options.kernelinitializer = "he";
+
+model.add(DenseLayer(32, options));
+model.add(DenseLayer(24, options));
+model.add(DenseLayer(16, options));
+model.add(DenseLayer(8, options));
+
+options.activation = "linear";
+options.usebias = true;
+options.kernelinitializer = "he";
+
+model.add(OutputLayer(1, options));
 
 model.compile();
 
-%% Train the DBN
-options.epochs = 10;
-options.batchsize = 10;
-options.momentum = 0;
-options.alpha = 0.1;
-options.decay = 0.00001;
-options.k = 1;
+%% Train
+options.batchsize = 128;
+options.epochs = 20000;
+options.learningrate = 0.001;
+options.lambd = 0.01;
+options.loss = "mse";
 
-%% Slice the training set
-numexamples = floor(size(trainX, 2) / options.batchsize) * options.batchsize;
-
-%% Pre-train the model with DBN
-model.fit(trainX(:, 1:numexamples), options);
-
-%% Evaluate
-Xreconstruct = model.evaluate(trainX);
-m = size(trainX, 2);
-diff = (1/m) * sum(sum((trainX - Xreconstruct) .^ 2));
-
-%% Covert to sequential model
-hiddenoptions.activation = "sigmoid";
-hiddenoptions.usebias = true;
-hiddenoptions.kernelinitializer = "random";
-
-outoptions.activation = "linear";
-outoptions.usebias = true;
-outoptions.kernelinitializer = "random";
-
-outputlayer = OutputLayer(1, outoptions);
-
-seqmodel = model.tosequential({
-    0, ...
-    hiddenoptions, ...
-    hiddenoptions, ...
-    hiddenoptions, ...
-    hiddenoptions
-    }, outputlayer);
-
-%% Test on the training set (not expecting any good result)
-probs = seqmodel.predict(trainX);
-m = size(trainy, 2);
-J = (1/m) * sum(sum((trainy-probs).^2));
-fprintf('Cost: %3.5f\n', J);
+model.fit(trainX, trainy, options);
 
 %% Convert to GA model
-gamodel = seqmodel.togamodel();
+gamodel = model.togamodel();
 
 %% Populate
 gamodel.populate(50);
-gamodel.replicatefrommodel(seqmodel);
+gamodel.replicatefrommodel(model);
 
 %% Introduce variations from pre-trained model
-options.mutationrate = 0.99;
+options.mutationrate = 0.05;
 gamodel.mutateall(options);
 
 %% Optimize with GA
 options.keeprate = 0.6;
-options.mutationrate = 0.05;
-options.generations = 5000;
+options.mutationrate = 0.01;
+options.generations = 1000;
 [minfitnesses, maxfitnesses] = gamodel.run(@gaoptimize, trainX, trainy, options);
 
 %% Test on the training set
 probs = gamodel.forest{1}.predict(trainX);
-J = (1/size(testy, 2)) * sum(sum((trainy-probs).^2));
+J = (1/size(trainy, 2)) * sum(sum((trainy-probs).^2));
 fprintf('Training set loss: %3.5f\n', J);
 figure
 hold on
@@ -188,8 +166,3 @@ figure
 hold on
 plot(testyoriginal)
 plot(scalerY.inversetransform(probs))
-
-%% Results
-% Fitness: [0.75 / 5.00]
-% Training set loss: 0.08059
-% Test set lost: 0.00900

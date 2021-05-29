@@ -103,10 +103,10 @@ disp("Data normalized");
 
 %% Build the DBN
 model = DBN();
-model.add(BernoulliRBM(45, 32));
-model.add(BernoulliRBM(32, 24));
-model.add(BernoulliRBM(24, 16));
-model.add(BernoulliRBM(16, 8));
+model.add(GaussianBernoulliRBM(45, 32));
+model.add(GaussianBernoulliRBM(32, 24));
+model.add(GaussianBernoulliRBM(24, 16));
+model.add(GaussianBernoulliRBM(16, 8));
 
 model.compile();
 
@@ -162,18 +162,18 @@ gamodel.populate(50);
 gamodel.replicatefrommodel(seqmodel);
 
 %% Introduce variations from pre-trained model
-options.mutationrate = 0.99;
+options.mutationrate = 0.10;
 gamodel.mutateall(options);
 
 %% Optimize with GA
 options.keeprate = 0.6;
-options.mutationrate = 0.05;
-options.generations = 5000;
+options.mutationrate = 0.02;
+options.generations = 20000;
 [minfitnesses, maxfitnesses] = gamodel.run(@gaoptimize, trainX, trainy, options);
 
 %% Test on the training set
 probs = gamodel.forest{1}.predict(trainX);
-J = (1/size(testy, 2)) * sum(sum((trainy-probs).^2));
+J = (1/size(trainy, 2)) * sum(sum((trainy-probs).^2));
 fprintf('Training set loss: %3.5f\n', J);
 figure
 hold on
@@ -193,3 +193,4 @@ plot(scalerY.inversetransform(probs))
 % Fitness: [0.75 / 5.00]
 % Training set loss: 0.08059
 % Test set lost: 0.00900
+
