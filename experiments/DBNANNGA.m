@@ -5,7 +5,7 @@ clc
 %% Global variables
 window = 5;
 qplinterval = 2048;
-product = 'EURUSD';
+product = 'GBPUSD';
 
 trainstartyear = 2010;
 trainstartmonth = 1;
@@ -176,7 +176,7 @@ options.generations = 5000;
 
 %% Test on the training set
 probs = gamodel.forest{1}.predict(trainX);
-J = (1/size(testy, 2)) * sum(sum((trainy-probs).^2));
+J = (1/size(trainy, 2)) * sum(sum((trainy-probs).^2));
 fprintf('Training set loss: %3.5f\n', J);
 figure
 hold on
@@ -196,4 +196,3 @@ plot(scalerY.inversetransform(probs))
 % Fitness: [0.75 / 5.00]
 % Training set loss: 0.08059
 % Test set lost: 0.00900
-

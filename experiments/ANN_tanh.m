@@ -5,7 +5,7 @@ clc
 %% Global variables
 window = 5;
 qplinterval = 2048;
-product = 'EURUSD';
+product = 'GBPUSD';
 
 trainstartyear = 2010;
 trainstartmonth = 1;

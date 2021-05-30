@@ -5,7 +5,7 @@ clc
 %% Global variables
 window = 5;
 qplinterval = 2048;
-product = 'EURUSD';
+product = 'USDCHF';
 
 trainstartyear = 2010;
 trainstartmonth = 1;
@@ -132,11 +132,11 @@ diff = (1/m) * sum(sum((trainX - Xreconstruct) .^ 2));
 %% Covert to sequential model
 hiddenoptions.activation = "sigmoid";
 hiddenoptions.usebias = true;
-hiddenoptions.kernelinitializer = "random";
+hiddenoptions.kernelinitializer = "he";
 
 outoptions.activation = "linear";
 outoptions.usebias = true;
-outoptions.kernelinitializer = "random";
+outoptions.kernelinitializer = "he";
 
 outputlayer = OutputLayer(1, outoptions);
 

@@ -132,11 +132,11 @@ diff = (1/m) * sum(sum((trainX - Xreconstruct) .^ 2));
 %% Covert to sequential model
 hiddenoptions.activation = "sigmoid";
 hiddenoptions.usebias = true;
-hiddenoptions.kernelinitializer = "random";
+hiddenoptions.kernelinitializer = "he";
 
 outoptions.activation = "linear";
 outoptions.usebias = true;
-outoptions.kernelinitializer = "random";
+outoptions.kernelinitializer = "he";
 
 outputlayer = OutputLayer(1, outoptions);
 
@@ -148,11 +148,14 @@ seqmodel = model.tosequential({
     hiddenoptions
     }, outputlayer);
 
-%% Test on the training set (not expecting any good result)
-probs = seqmodel.predict(trainX);
-m = size(trainy, 2);
-J = (1/m) * sum(sum((trainy-probs).^2));
-fprintf('Cost: %3.5f\n', J);
+%% Train
+options.batchsize = 128;
+options.epochs = 20000;
+options.learningrate = 0.001;
+options.lambd = 0.01;
+options.loss = "mse";
+
+seqmodel.fit(trainX, trainy, options);
 
 %% Convert to GA model
 gamodel = seqmodel.togamodel();
@@ -162,18 +165,18 @@ gamodel.populate(50);
 gamodel.replicatefrommodel(seqmodel);
 
 %% Introduce variations from pre-trained model
-options.mutationrate = 0.99;
+options.mutationrate = 0.10;
 gamodel.mutateall(options);
 
 %% Optimize with GA
 options.keeprate = 0.6;
-options.mutationrate = 0.05;
-options.generations = 5000;
+options.mutationrate = 0.02;
+options.generations = 150000;
 [minfitnesses, maxfitnesses] = gamodel.run(@gaoptimize, trainX, trainy, options);
 
 %% Test on the training set
 probs = gamodel.forest{1}.predict(trainX);
-J = (1/size(testy, 2)) * sum(sum((trainy-probs).^2));
+J = (1/size(trainy, 2)) * sum(sum((trainy-probs).^2));
 fprintf('Training set loss: %3.5f\n', J);
 figure
 hold on
@@ -193,3 +196,4 @@ plot(scalerY.inversetransform(probs))
 % Fitness: [0.75 / 5.00]
 % Training set loss: 0.08059
 % Test set lost: 0.00900
+

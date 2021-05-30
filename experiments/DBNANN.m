@@ -5,7 +5,7 @@ clc
 %% Global variables
 window = 5;
 qplinterval = 2048;
-product = 'EURUSD';
+product = 'GBPUSD';
 
 trainstartyear = 2010;
 trainstartmonth = 1;
@@ -94,7 +94,7 @@ testy = testy';
 trainyoriginal = trainy;
 testyoriginal = testy;
 scalerX = MinMaxScaler();
-scalerY = MinMaxScaler();
+scalerY = StandardScaler();
 trainX = scalerX.fittransform(trainX, 2);
 trainy = scalerY.fittransform(trainy, 2);
 testX = scalerX.transform(testX);
@@ -179,4 +179,3 @@ plot(scalerY.inversetransform(probs))
 % Fitness: [0.75 / 5.00]
 % Training set loss: 0.08059
 % Test set lost: 0.00900
-
