@@ -103,10 +103,10 @@ disp("Data normalized");
 
 %% Build the DBN
 model = DBN();
-model.add(BernoulliRBM(45, 32));
-model.add(BernoulliRBM(32, 24));
-model.add(BernoulliRBM(24, 16));
-model.add(BernoulliRBM(16, 8));
+model.add(GaussianBernoulliRBM(45, 32));
+model.add(GaussianBernoulliRBM(32, 24));
+model.add(GaussianBernoulliRBM(24, 16));
+model.add(GaussianBernoulliRBM(16, 8));
 
 model.compile();
 
